@@ -1,0 +1,305 @@
+/*
+----------------------------CONSIGNA PARCIAL PARTE 1---------------------------------------------
+     Diseñar un contador de 0 a 99 utilizando dos displays de 7 segmentos y tres botones para
+     controlar la cuenta. 
+     Debes implementar la técnica de multiplexación para mostrar los dígitos
+     en los displays. 
+     El contador debe comenzar en 0 y debe ser capaz de aumentar o disminuir
+     su valor en una unidad con los botones.
+-------------------------------------------------------------------------------------------------
+*/
+
+/*
+   Proyecto: Contador con dos Displays de 7 Segmentos y 3 botones pulsadores
+   Autores: Facundo Chiappa
+            Agustin Carmona
+            Felipe Sznec
+            Luz Cartolano
+   Fecha de Creación: 03/10/2023
+   Descripción: Este código Arduino controla un contador con un display de 7 segmentos.
+                Permite aumentar, disminuir y resetear el contador.
+*/
+
+// Definición de pines
+#define A 10
+#define B 11
+#define C 5
+#define D 6
+#define E 7
+#define F 9
+#define G 8
+#define SUBE 4
+#define BAJA 3
+#define RESET 2
+#define UNIDAD A4
+#define DECENA A5
+#define APAGADOS 0
+#define TIMEDISPLAYON 10
+
+// Variables globales
+int countDigit = 0;     // Almacena el valor del contador
+int sube = 1;           // Estado del botón SUBE (1 = no presionado, 0 = presionado)
+int subePrevia = 1;     // Estado previo del botón SUBE
+int baja = 1;           // Estado del botón BAJA (1 = no presionado, 0 = presionado)
+int bajaPrevia = 1;     // Estado previo del botón BAJA
+int reset = 1;          // Estado del botón RESET (1 = no presionado, 0 = presionado)
+int resetPrevia = 1;    // Estado previo del botón RESET
+
+/*
+   Función: setup
+   Descripción: Configura los pines y valores iniciales del sistema.
+   Parámetros: Ninguno
+   Valor de retorno: Ninguno
+*/
+void setup()
+{
+    pinMode(3, INPUT_PULLUP);
+    pinMode(4, INPUT_PULLUP);
+    pinMode(2, INPUT_PULLUP);
+    pinMode(5, OUTPUT);
+    pinMode(6, OUTPUT);
+    pinMode(7, OUTPUT);
+    pinMode(8, OUTPUT);
+    pinMode(9, OUTPUT);
+    pinMode(10, OUTPUT);
+    pinMode(11, OUTPUT);
+    pinMode(UNIDAD, OUTPUT);
+    pinMode(DECENA, OUTPUT);
+    digitalWrite(UNIDAD, 0);
+    digitalWrite(DECENA, 0);
+    printDigit(0);
+}
+
+/*
+   Función: loop
+   Descripción: Rutina principal que maneja las operaciones del contador.
+   Parámetros: Ninguno
+   Valor de retorno: Ninguno
+*/
+void loop()
+{
+    int pressed = keypressed();
+    if (pressed == SUBE)
+    {
+        countDigit++;
+        if (countDigit > 99)
+            countDigit = 0;
+    }
+    else if (pressed == BAJA)
+    {
+        countDigit--;
+        if (countDigit < 0)
+            countDigit = 99;
+    }
+    else if (pressed == RESET)
+    {
+        countDigit = 0;
+    }
+
+    printCount(countDigit);
+}
+
+/*
+   Función: printDigit
+   Descripción: Configura los pines para mostrar un dígito específico en el display de 7 segmentos.
+   Parámetros:
+   - digit: El dígito que se mostrará (0-9).
+   Valor de retorno: Ninguno
+*/
+void printDigit(int digit)
+{
+  digitalWrite(A, LOW);
+  digitalWrite(B, LOW);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, LOW);
+  digitalWrite(G, LOW);
+  switch (digit)
+  {
+  	case 1:
+  	{
+        digitalWrite(B, HIGH);
+ 	    digitalWrite(C, HIGH);
+      	break;
+  	}
+    case 2:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(D, HIGH);
+        digitalWrite(E, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	}
+  
+    case 3:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	}
+    case 4:
+  	{
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(F, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	}
+    
+    case 5:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+      	digitalWrite(F, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	}
+    case 6:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+      	digitalWrite(E, HIGH);
+      	digitalWrite(F, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	}
+    
+    case 7:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+      	break;
+  	}
+     case 8:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+        digitalWrite(E, HIGH);
+        digitalWrite(F, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	} 
+     case 9:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+        digitalWrite(F, HIGH);
+        digitalWrite(G, HIGH);
+      	break;
+  	} 
+    
+      case 0:
+  	{
+        digitalWrite(A, HIGH);
+        digitalWrite(B, HIGH);
+        digitalWrite(C, HIGH);
+        digitalWrite(D, HIGH);
+        digitalWrite(E, HIGH);
+        digitalWrite(F, HIGH);
+      	break;
+  	}
+    
+    
+  }
+  
+
+}
+
+
+/*
+   Función: prendeDigito
+   Descripción: Activa un dígito específico del display (unidad o decena) mientras desactiva el otro.
+   Parámetros:
+   - digito: El dígito que se debe activar (UNIDAD o DECENA).
+   Valor de retorno: Ninguno
+*/
+void prendeDigito(int digito)
+{
+    if (digito == UNIDAD)
+    {
+        digitalWrite(UNIDAD, LOW);
+        digitalWrite(DECENA, HIGH);
+        delay(TIMEDISPLAYON);
+    }
+    else if (digito == DECENA)
+    {
+        digitalWrite(UNIDAD, HIGH);
+        digitalWrite(DECENA, LOW);
+        delay(TIMEDISPLAYON);
+    }
+    else
+    {
+        digitalWrite(UNIDAD, HIGH);
+        digitalWrite(DECENA, HIGH);
+    }
+}
+
+/*
+   Función: printCount
+   Descripción: Muestra el número del contador en el display de 7 segmentos.
+   Parámetros:
+   - count: El número que se mostrará en el display (0-99).
+   Valor de retorno: Ninguno
+*/
+void printCount(int count)
+{
+    prendeDigito(APAGADOS);
+    printDigit(count / 10);
+    prendeDigito(DECENA);
+    prendeDigito(APAGADOS);
+    printDigit(count - 10 * ((int)count / 10));
+    prendeDigito(UNIDAD);
+}
+
+/*
+   Función: keypressed
+   Descripción: Detecta si se ha presionado uno de los botones (SUBE, BAJA o RESET) y devuelve el código correspondiente.
+   Parámetros: Ninguno
+   Valor de retorno: Un valor entero que representa el botón presionado (SUBE, BAJA, RESET) o 0 si no se presionó ningún botón.
+*/
+int keypressed(void)
+{
+    sube = digitalRead(SUBE);
+    baja = digitalRead(BAJA);
+    reset = digitalRead(RESET);
+    if (sube == 1)
+        subePrevia = 1;
+    if (baja)
+        bajaPrevia = 1;
+    if (reset)
+        resetPrevia = 1;
+
+    if (sube == 0 && sube != subePrevia)
+    {
+        subePrevia = sube;
+        return SUBE;
+    }
+
+    if (baja == 0 && baja != bajaPrevia)
+    {
+        bajaPrevia = baja;
+        return BAJA;
+    }
+
+    if (reset == 0 && reset != resetPrevia)
+    {
+        resetPrevia = reset;
+        return RESET;
+    }
+    return 0; // No se presionó ninguna tecla o se presionó una que ya estaba presionada.
+}
+
+
+      
